@@ -1,0 +1,235 @@
+/* static/css/style.css */
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    margin: 0;
+    color: #1c4b82;
+}
+
+header h2 {
+    margin: 0;
+    font-weight: normal;
+    color: #555;
+}
+
+.container {
+    display: flex;
+    gap: 20px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.panel {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex: 1;
+}
+
+.video-panel img {
+    width: 100%;
+    border-radius: 4px;
+}
+
+.data-panel h3,
+.video-panel h3 {
+    margin-top: 0;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+}
+
+.widget {
+    background: #e9ecef;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.widget p {
+    margin: 0 0 5px 0;
+    font-weight: bold;
+}
+
+.widget span {
+    font-size: 2em;
+    color: #28a745;
+}
+
+/* Green for calm */
+
+/* Alert state styling */
+.widget.alert-state {
+    border-color: #dc3545;
+}
+
+.widget.alert-state span {
+    color: #dc3545;
+}
+
+/* Red for high stress */
+
+button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    font-size: 1em;
+    font-weight: bold;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Styles for the pop-up */
+.hidden {
+    display: none !important;
+}
+
+#alert-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup-content {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 400px;
+}
+
+.popup-content button {
+    margin-top: 10px;
+}
+
+#play-message-btn {
+    background-color: #28a745;
+}
+
+#play-message-btn:hover {
+    background-color: #218838;
+}
+
+#close-popup-btn {
+    background-color: #6c757d;
+}
+
+#close-popup-btn:hover {
+    background-color: #5a6268;
+}
+
+/* History Section */
+.history-section {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 24px auto;
+    max-width: 500px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.history-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.history-section li {
+    padding: 6px 0;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 1em;
+    color: #495057;
+}
+.history-section li:last-child {
+    border-bottom: none;
+}
+
+/* Personalization Section */
+.personalization-section {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 24px auto;
+    max-width: 500px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    text-align: center;
+}
+.personalization-section input[type="file"] {
+    margin: 10px 0;
+}
+#upload-status {
+    display: block;
+    margin-top: 8px;
+    color: #28a745;
+    font-weight: bold;
+}
+
+/* Accessibility Section */
+.accessibility-section {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 24px auto;
+    max-width: 500px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.accessibility-section ul {
+    padding-left: 20px;
+}
+
+.icon {
+    width: 32px;
+    height: 32px;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+/* Analytics Section */
+.analytics-section {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 24px auto;
+    max-width: 600px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    text-align: center;
+}
+.analytics-section canvas {
+    margin-top: 12px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}

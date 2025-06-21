@@ -1,0 +1,269 @@
+<!-- templates/index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autism Support App - Prototype</title>
+    <!-- Link to our CSS file -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <header>
+        <h1>Student Monitoring Dashboard</h1>
+        <h2>Student: Alex</h2>
+    </header>
+
+    <main class="container">
+        <!-- Left Panel: Video Feed -->
+        <div class="panel video-panel">
+            <h3>Live Classroom Feed</h3>
+            <!-- This is a fake video feed -->
+            <img src="{{ url_for('static', filename='images/classroom.jpg') }}" alt="Classroom feed">
+        </div>
+
+        <!-- Right Panel: Biometrics and Controls -->
+        <div class="panel data-panel">
+            <h3>Biometric Signals</h3>
+            <div class="widget" id="heart-rate-widget">
+                <img src="{{ url_for('static', filename='images/heart.svg') }}" alt="Heart Icon" class="icon">
+                <p>Heart Rate</p>
+                <span id="heart-rate-value">85 bpm</span>
+            </div>
+            <div class="widget" id="stress-widget">
+                <img src="{{ url_for('static', filename='images/stress.svg') }}" alt="Stress Icon" class="icon">
+                <p>Stress Level</p>
+                <span id="stress-level-value">Calm</span>
+            </div>
+
+            <button id="simulate-alert-btn">Simulate Stress Alert</button>
+        </div>
+    </main>
+
+    <!-- The Alert Pop-up (hidden by default) -->
+    <div id="alert-popup" class="hidden">
+        <div class="popup-content">
+            <h3 id="alert-message"></h3>
+            <p>Would you like to provide support?</p>
+            <button id="play-message-btn">Play Parent's Calming Message</button>
+            <button id="close-popup-btn">Dismiss</button>
+        </div>
+    </div>
+
+    <!-- The audio element for the parent's voice -->
+    <audio id="calming-audio" src="{{ url_for('static', filename='audio/calming_message.mp3') }}"></audio>
+
+    <!-- History Section -->
+    <section class="history-section">
+        <h3>Alert History</h3>
+        <ul id="alert-history-list">
+            <!-- Alert history items will be added here -->
+        </ul>
+    </section>
+
+    <!-- Personalization Section -->
+    <section class="personalization-section">
+        <h3>Personalize Calming Message</h3>
+        <input type="file" id="upload-audio" accept="audio/*">
+        <label for="upload-audio">Upload Parent's Calming Message</label>
+        <span id="upload-status"></span>
+    </section>
+
+    <!-- Analytics Section: Heart Rate & Stress Trends -->
+    <section class="analytics-section">
+        <h3>Biometric Trends</h3>
+        <canvas id="biometricChart" width="400" height="200"></canvas>
+    </section>
+
+    <!-- Link to our JavaScript file at the end of the body -->
+    <script>
+        // Wait for the entire page to be loaded before running the script
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // Get references to all the interactive elements on the page
+            const simulateBtn = document.getElementById('simulate-alert-btn');
+            const heartRateValue = document.getElementById('heart-rate-value');
+            const stressLevelValue = document.getElementById('stress-level-value');
+            const heartRateWidget = document.getElementById('heart-rate-widget');
+            const stressWidget = document.getElementById('stress-widget');
+
+            const alertPopup = document.getElementById('alert-popup');
+            const alertMessage = document.getElementById('alert-message');
+            const playMessageBtn = document.getElementById('play-message-btn');
+            const closePopupBtn = document.getElementById('close-popup-btn');
+            const calmingAudio = document.getElementById('calming-audio');
+
+            // --- Event Listener for the "Simulate Alert" button ---
+            simulateBtn.addEventListener('click', () => {
+                // Use the Fetch API to make a request to our Flask backend
+                fetch('/trigger_alert')
+                    .then(response => response.json()) // Parse the JSON response
+                    .then(data => {
+                        // Now, use the data from the server to update the page
+                        console.log('Received alert data:', data);
+
+                        // 1. Update the biometric widgets with the new data
+                        heartRateValue.textContent = data.heart_rate;
+                        stressLevelValue.textContent = data.stress_level;
+
+                        // 2. Change the style of the widgets to indicate an alert
+                        heartRateWidget.classList.add('alert-state');
+                        stressWidget.classList.add('alert-state');
+
+                        // 3. Update the message in the pop-up and show it
+                        alertMessage.textContent = data.alert_message;
+                        alertPopup.classList.remove('hidden');
+                    })
+                    .catch(error => console.error('Error fetching alert data:', error));
+            });
+
+            // --- Event Listener for the "Play Message" button ---
+            playMessageBtn.addEventListener('click', () => {
+                calmingAudio.play();
+                playMessageBtn.textContent = 'Message Sent!';
+                playMessageBtn.disabled = true; // Prevent multiple plays
+            });
+
+            // --- Event Listener for the "Dismiss" button on the pop-up ---
+            closePopupBtn.addEventListener('click', () => {
+                alertPopup.classList.add('hidden');
+            });
+
+            // --- Alert History Feature ---
+            const alertHistoryList = document.getElementById('alert-history-list');
+            function addAlertToHistory(message) {
+                const li = document.createElement('li');
+                li.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+                alertHistoryList.prepend(li);
+            }
+
+            // --- Personalization: Upload Calming Message ---
+            const uploadAudio = document.getElementById('upload-audio');
+            const uploadStatus = document.getElementById('upload-status');
+            uploadAudio.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const url = URL.createObjectURL(file);
+                    calmingAudio.src = url;
+                    uploadStatus.textContent = 'Custom message loaded!';
+                }
+            });
+
+            // --- Accessibility: Dismiss popup with Esc key ---
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !alertPopup.classList.contains('hidden')) {
+                    alertPopup.classList.add('hidden');
+                }
+            });
+
+            // --- Add to history when alert is triggered ---
+            simulateBtn.addEventListener('click', () => {
+                // Use the Fetch API to make a request to our Flask backend
+                fetch('/trigger_alert')
+                    .then(response => response.json()) // Parse the JSON response
+                    .then(data => {
+                        // Now, use the data from the server to update the page
+                        console.log('Received alert data:', data);
+
+                        // 1. Update the biometric widgets with the new data
+                        heartRateValue.textContent = data.heart_rate;
+                        stressLevelValue.textContent = data.stress_level;
+
+                        // 2. Change the style of the widgets to indicate an alert
+                        heartRateWidget.classList.add('alert-state');
+                        stressWidget.classList.add('alert-state');
+
+                        // 3. Update the message in the pop-up and show it
+                        alertMessage.textContent = data.alert_message;
+                        alertPopup.classList.remove('hidden');
+
+                        // 4. Add the alert to the history
+                        addAlertToHistory(data.alert_message);
+                    })
+                    .catch(error => console.error('Error fetching alert data:', error));
+            });
+
+            // --- Chart.js: Biometric Trends ---
+            const ctx = document.getElementById('biometricChart').getContext('2d');
+            const chartData = {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Heart Rate (bpm)',
+                        data: [],
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220,53,69,0.1)',
+                        yAxisID: 'y',
+                    },
+                    {
+                        label: 'Stress Level',
+                        data: [],
+                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(0,123,255,0.1)',
+                        yAxisID: 'y1',
+                    }
+                ]
+            };
+            const biometricChart = new Chart(ctx, {
+                type: 'line',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    interaction: { mode: 'index', intersect: false },
+                    stacked: false,
+                    plugins: { legend: { position: 'top' } },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: 'Heart Rate (bpm)' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: { display: true, text: 'Stress Level' },
+                            grid: { drawOnChartArea: false }
+                        }
+                    }
+                }
+            });
+            // Update chart on alert
+            function updateBiometricChart(hr, stress) {
+                const now = new Date().toLocaleTimeString();
+                chartData.labels.push(now);
+                chartData.datasets[0].data.push(hr);
+                chartData.datasets[1].data.push(stress);
+                if (chartData.labels.length > 10) {
+                    chartData.labels.shift();
+                    chartData.datasets[0].data.shift();
+                    chartData.datasets[1].data.shift();
+                }
+                biometricChart.update();
+            }
+            // Hook into alert simulation
+            simulateBtn.addEventListener('click', () => {
+                fetch('/trigger_alert')
+                    .then(response => response.json())
+                    .then(data => {
+                        // ...existing code...
+                        // Add to chart
+                        updateBiometricChart(data.heart_rate, data.stress_level === 'Calm' ? 1 : 5);
+                    })
+                    // ...existing code...
+            });
+
+        });
+    </script>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</body>
+
+</html>
