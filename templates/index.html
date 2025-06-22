@@ -97,7 +97,27 @@
             const closePopupBtn = document.getElementById('close-popup-btn');
             const calmingAudio = document.getElementById('calming-audio');
 
-            // --- Event Listener for the "Simulate Alert" button ---
+            // --- Poll biometrics every 2 seconds ---
+            function pollBiometrics() {
+                fetch('/biometrics')
+                    .then(response => response.json())
+                    .then(data => {
+                        heartRateValue.textContent = data.heart_rate;
+                        stressLevelValue.textContent = data.stress_level;
+                        // Remove alert state if not high
+                        if (data.stress_level === 'High' || parseInt(data.heart_rate) >= 120) {
+                            heartRateWidget.classList.add('alert-state');
+                            stressWidget.classList.add('alert-state');
+                        } else {
+                            heartRateWidget.classList.remove('alert-state');
+                            stressWidget.classList.remove('alert-state');
+                        }
+                    });
+            }
+            setInterval(pollBiometrics, 2000);
+            pollBiometrics(); // Initial call
+
+            // --- Simulate Alert button (unchanged) ---
             simulateBtn.addEventListener('click', () => {
                 // Use the Fetch API to make a request to our Flask backend
                 fetch('/trigger_alert')
@@ -131,6 +151,8 @@
             // --- Event Listener for the "Dismiss" button on the pop-up ---
             closePopupBtn.addEventListener('click', () => {
                 alertPopup.classList.add('hidden');
+                // Notify backend that alert has been acknowledged
+                fetch('/acknowledge_alert', { method: 'POST' });
             });
 
             // --- Alert History Feature ---
@@ -257,6 +279,27 @@
                     })
                     // ...existing code...
             });
+
+            // --- Auto alert if threshold crossed ---
+            function checkForAutoAlert() {
+                fetch('/trigger_alert')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'alert') {
+                            // Show popup and update UI as in simulateBtn
+                            heartRateValue.textContent = data.heart_rate;
+                            stressLevelValue.textContent = data.stress_level;
+                            heartRateWidget.classList.add('alert-state');
+                            stressWidget.classList.add('alert-state');
+                            alertMessage.textContent = data.alert_message;
+                            alertPopup.classList.remove('hidden');
+                            addAlertToHistory(data.alert_message);
+                            updateBiometricChart(data.heart_rate, data.stress_level === 'Calm' ? 1 : 5);
+                        }
+                        // Do not repeat alert if already active
+                    });
+            }
+            setInterval(checkForAutoAlert, 2000);
 
         });
     </script>
